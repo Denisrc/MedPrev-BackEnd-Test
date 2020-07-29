@@ -6,8 +6,9 @@ const app = new Koa();
 
 app.use(koaBody());
 
-app.use(async (ctx) => {
-  ctx.body = 'Hello World';
-});
+// Importing Routes
+const person = require('./routes/person');
+
+app.use(person.routes());
 
 app.listen(3000);
