@@ -1,4 +1,5 @@
 const Router = require('koa-router');
+const { ObjectId } = require('mongoose').Types;
 const Person = require('../models/PersonSchema');
 
 // Creating router
@@ -20,6 +21,20 @@ router.post('/', async (ctx, next) => {
   const savedPerson = await newPerson.save();
 
   ctx.body = savedPerson;
+  next();
+});
+
+router.delete('/:personId', async (ctx, next) => {
+  const { personId } = ctx.params;
+
+  const deletedPerson = await Person.deleteOne({ _id: new ObjectId(personId) });
+
+  if (deletedPerson.deletedCount === 0) {
+    ctx.body = { error: 'Not found Person with given id' };
+    ctx.response.status = 404;
+  } else {
+    ctx.body = { message: 'Person deleted sucessfuly!' };
+  }
   next();
 });
 
