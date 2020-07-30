@@ -21,6 +21,7 @@ router.post('/', async (ctx, next) => {
   const savedPerson = await newPerson.save();
 
   ctx.body = savedPerson;
+  ctx.response.status = 201;
   next();
 });
 
@@ -53,6 +54,30 @@ router.post('/:personId', async (ctx, next) => {
 
   if (person === null) {
     ctx.body = { error: 'Not found Person with given id' };
+    ctx.response.status = 404;
+    return;
+  }
+
+  ctx.body = person;
+  next();
+});
+
+router.get('/:personId', async (ctx, next) => {
+  const { personId } = ctx.params;
+
+  try {
+    ObjectId(personId);
+  } catch {
+    ctx.body = { error: 'Invalid ID' };
+    ctx.response.status = 400;
+    return;
+  }
+
+  const person = await Person.findById(personId);
+
+  if (person === null) {
+    ctx.body = { error: 'Not found Person with given id' };
+    ctx.response.status = 404;
     return;
   }
 
