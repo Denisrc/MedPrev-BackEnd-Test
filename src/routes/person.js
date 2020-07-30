@@ -14,4 +14,13 @@ router.get('/', async (ctx, next) => {
   next();
 });
 
+router.post('/', async (ctx, next) => {
+  const person = ctx.request.body;
+  const newPerson = new Person(person);
+  const savedPerson = await newPerson.save();
+
+  ctx.body = savedPerson;
+  next();
+});
+
 module.exports = router;
