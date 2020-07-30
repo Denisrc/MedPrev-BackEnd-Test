@@ -4,7 +4,7 @@ const personValidation = Joi.object({
   tipo: Joi.string().valid('Pessoa física', 'Pessoa jurídica').required(),
   nome: Joi.string().min(3).required(),
   razaoSocial: Joi.alternatives()
-    .conditional('tipo', { is: 'Pessoa jurídica', then: Joi.string().alphanum() }),
+    .conditional('tipo', { is: 'Pessoa jurídica', then: Joi.string() }),
   CPF: Joi.alternatives()
     .conditional('tipo', {
       is: 'Pessoa física',

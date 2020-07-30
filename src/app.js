@@ -4,9 +4,11 @@ const koaBody = require('koa-body');
 
 const app = new Koa();
 
-const config = require('./config').development;
+const config = require('./config');
 
-mongoose.connect(config.DBHost, {
+const enviroment = process.env.NODE_ENV === 'test' ? config.test : config.development;
+
+mongoose.connect(enviroment.DBHost, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -18,4 +20,4 @@ const person = require('./routes/person');
 
 app.use(person.routes());
 
-app.listen(3000);
+module.exports = app;
