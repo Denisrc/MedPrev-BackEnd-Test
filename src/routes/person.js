@@ -1,6 +1,8 @@
 const Router = require('koa-router');
 const { ObjectId } = require('mongoose').Types;
+
 const Person = require('../models/PersonSchema');
+const PersonValidator = require('../validation/personValidation');
 
 // Creating router
 const router = new Router({
@@ -8,6 +10,7 @@ const router = new Router({
 });
 
 // Routes
+// List all person route
 router.get('/', async (ctx, next) => {
   const person = await Person.find({});
 
@@ -15,8 +18,19 @@ router.get('/', async (ctx, next) => {
   next();
 });
 
+// Create a new person route
 router.post('/', async (ctx, next) => {
   const person = ctx.request.body;
+
+  // Validate if the request parameter matches the required fields
+  try {
+    await PersonValidator.validateAsync(person);
+  } catch (err) {
+    ctx.body = err.details;
+    ctx.response.status = 400;
+    return;
+  }
+
   const newPerson = new Person(person);
   const savedPerson = await newPerson.save();
 
@@ -25,11 +39,22 @@ router.post('/', async (ctx, next) => {
   next();
 });
 
+// Delete a person by id route
 router.delete('/:personId', async (ctx, next) => {
   const { personId } = ctx.params;
 
+  // Verify if the passed id is valid
+  try {
+    ObjectId(personId);
+  } catch {
+    ctx.body = { error: 'Invalid ID' };
+    ctx.response.status = 400;
+    return;
+  }
+
   const deletedPerson = await Person.deleteOne({ _id: new ObjectId(personId) });
 
+  // Check if deleted the person, if nothing was deleted return error
   if (deletedPerson.deletedCount === 0) {
     ctx.body = { error: 'Not found Person with given id' };
     ctx.response.status = 404;
@@ -39,10 +64,21 @@ router.delete('/:personId', async (ctx, next) => {
   next();
 });
 
+// Update person by id route
 router.post('/:personId', async (ctx, next) => {
   const { personId } = ctx.params;
   const { body } = ctx.request;
 
+  // Validate if the request parameter matches the required fields
+  try {
+    await PersonValidator.validateAsync(body);
+  } catch (err) {
+    ctx.body = err.details;
+    ctx.response.status = 400;
+    return;
+  }
+
+  // Verify if the passed id is valid
   try {
     ObjectId(personId);
   } catch {
@@ -50,7 +86,8 @@ router.post('/:personId', async (ctx, next) => {
     ctx.response.status = 400;
     return;
   }
-  const person = await Person.findByIdAndUpdate(personId, body, { new: true });
+
+  const person = await Person.findByIdAndUpdate(personId, body, { new: true, overwrite: true });
 
   if (person === null) {
     ctx.body = { error: 'Not found Person with given id' };
@@ -62,9 +99,11 @@ router.post('/:personId', async (ctx, next) => {
   next();
 });
 
+// Get only one person by its id
 router.get('/:personId', async (ctx, next) => {
   const { personId } = ctx.params;
 
+  // Verify if the passed id is valid
   try {
     ObjectId(personId);
   } catch {
