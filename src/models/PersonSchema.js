@@ -44,6 +44,7 @@ const PersonSchema = new mongoose.Schema({
         required: true,
       },
       numero: {
+        type: 'Number',
         required: true,
       },
       complemento: {
