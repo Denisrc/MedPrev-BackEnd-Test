@@ -38,4 +38,26 @@ router.delete('/:personId', async (ctx, next) => {
   next();
 });
 
+router.post('/:personId', async (ctx, next) => {
+  const { personId } = ctx.params;
+  const { body } = ctx.request;
+
+  try {
+    ObjectId(personId);
+  } catch {
+    ctx.body = { error: 'Invalid ID' };
+    ctx.response.status = 400;
+    return;
+  }
+  const person = await Person.findByIdAndUpdate(personId, body, { new: true });
+
+  if (person === null) {
+    ctx.body = { error: 'Not found Person with given id' };
+    return;
+  }
+
+  ctx.body = person;
+  next();
+});
+
 module.exports = router;
