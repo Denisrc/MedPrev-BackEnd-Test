@@ -14,6 +14,7 @@ describe('Person', () => {
       .send(personData.pessoaFisica);
 
     expect(response.body).toHaveProperty('_id');
+    expect(response.body.endereco.length).toBe(1);
   });
 
   it('should be able to create a Pessoa Juridica', async () => {
@@ -61,7 +62,8 @@ describe('Person', () => {
     const response = await request(app.callback())
       .get('/person');
 
-    expect(response.body.length).toBe(3);
+    expect(response.body.docs.length).toBe(3);
+    expect(response.body.total).toBe(3);
   });
 
   it('should be able to delete a Person from the list', async () => {
@@ -76,7 +78,8 @@ describe('Person', () => {
     response = await request(app.callback())
       .get('/person');
 
-    expect(response.body.length).toBe(4);
+    expect(response.body.docs.length).toBe(4);
+    expect(response.body.total).toBe(4);
 
     response = await request(app.callback())
       .delete(`/person/${_id}`);
@@ -86,14 +89,17 @@ describe('Person', () => {
     response = await request(app.callback())
       .get('/person');
 
-    expect(response.body.length).toBe(3);
+    expect(response.body.docs.length).toBe(3);
+    expect(response.body.total).toBe(3);
+    
   });
 
   it('should no be able to delete a Person without a valid id from the list', async () => {
     let response = await request(app.callback())
       .get('/person');
 
-    expect(response.body.length).toBe(3);
+    expect(response.body.docs.length).toBe(3);
+    expect(response.body.total).toBe(3);
 
     response = await request(app.callback())
       .delete('/person/a');
@@ -103,7 +109,8 @@ describe('Person', () => {
     response = await request(app.callback())
       .get('/person');
 
-    expect(response.body.length).toBe(3);
+    expect(response.body.docs.length).toBe(3);
+    expect(response.body.total).toBe(3);
   });
 
   it('should be able to update a Person', async () => {

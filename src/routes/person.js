@@ -12,9 +12,23 @@ const router = new Router({
 // Routes
 // List all person route
 router.get('/', async (ctx, next) => {
-  const person = await Person.find({});
+  let { page } = ctx.query;
 
-  ctx.body = person;
+  if (page === undefined) {
+    page = 1;
+  }
+
+  const totalDocuments = await Person.estimatedDocumentCount({});
+
+  const currentPage = (page - 1) * 5;
+
+  const person = await Person.find({}).limit(5).skip(currentPage);
+
+  ctx.body = {
+    docs: person,
+    page,
+    total: totalDocuments,
+  };
   next();
 });
 
