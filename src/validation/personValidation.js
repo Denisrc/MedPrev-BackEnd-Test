@@ -47,7 +47,7 @@ const personValidation = Joi.object({
       'string.pattern.base': 'O telefone deve estar no formato (00) 00000-0000',
     }),
   foto: Joi.string().uri(),
-  endereco: Joi.array().items(Joi.object({
+  endereco: Joi.array().min(1).required().items(Joi.object({
     endereco: Joi.string().required(),
     numero: Joi.number().min(0).required(),
     complemento: Joi.string().allow(null, ''),
